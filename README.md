@@ -1,40 +1,44 @@
 # API de Notificação de Visitas por E-mail
 
-Este projeto é uma API simples feita com Flask (Python) que detecta acessos e envia um e-mail notificando sobre a visita, incluindo o momento exato do acesso.  
-Para evitar envio excessivo, o sistema limita o envio para no máximo um e-mail a cada 10 segundos.
+Este projeto é uma API simples desenvolvida com Flask (Python) que detecta acessos e envia notificações por e-mail sobre as visitas.
+
+Agora, ao invés de enviar um e-mail a cada acesso, a API gera um relatório diário às 18h, contendo:
+
+- Quantidade total de acessos do dia  
+- Lista com os horários das visitas e quantas vezes ocorreram
 
 ---
 
-##  Funcionalidades
+## Funcionalidades
 
--  Detecta acessos via rotas HTTP
-- Envia e-mails via SMTP (Gmail)
-- Envio seguro usando **Senhas de Aplicativo do Google**
-- Variáveis de ambiente configuradas com **python-dotenv**
--  Controle para evitar múltiplos envios em menos de 10 segundos
-- Pode ser integrada a front-ends com `fetch`, como:
+- Detecta acessos via rotas HTTP
+- Envia e-mails de forma segura via SMTP (Gmail)
+- Gera relatórios diários automáticos às 18h
+- Mostra os horários exatos das visitas e a quantidade por horário
+- Suporte a Senhas de Aplicativo do Google
+- Variáveis de ambiente gerenciadas com `python-dotenv`
+- Pode ser integrada facilmente com front-ends usando `fetch`
 
-```js
-const res = await fetch('https://api-gbrh.onrender.com/');
+---
 
-Tecnologias utilizadas:
+## Tecnologias Utilizadas
 
-Python 3
+- Python 3  
+- Flask  
+- Flask-CORS  
+- python-dotenv  
+- smtplib (para envio de e-mail)  
+- Gmail SMTP  
 
-Flask
+---
 
-Flask-CORS
+## Observações
 
-python-dotenv
+- O servidor precisa estar rodando para que a API responda às requisições.
+- As seguintes variáveis de ambiente devem estar corretamente configuradas:
 
-smtplib (para envio de e-mail)
-
-Gmail SMTP
-------------------------------
-Observações
-O servidor deve estar rodando para que a API responda às requisições.
-
-Garanta que as variáveis de ambiente estejam corretamente configuradas.
-
-A limitação de 10 segundos evita spam de e-mails.
-
+```env
+EMAIL_ADDRESS=seuemail@gmail.com
+EMAIL_PASSWORD=sua_senha_de_aplicativo
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
