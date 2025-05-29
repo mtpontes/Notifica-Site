@@ -2,12 +2,13 @@ from flask import Flask, request
 from dotenv import load_dotenv
 import smtplib
 from email.mime.text import MIMEText
-from datetime import datetime, time, timedelta
+from datetime import datetime, timedelta
 import os
 from flask_cors import CORS
 import threading
-import time as time_module
-from collections import defaultdict
+import schedule
+import time
+from user_agents import parse
 
 app = Flask(__name__)
 CORS(app)
@@ -19,105 +20,80 @@ EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
 SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
 SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
 
-# 🛡️ Proteção contra bots
-@app.before_request
-def bloquear_bots():
-    user_agent = request.headers.get('User-Agent', '').lower()
-    bots = ['bot', 'crawler', 'spider']
-    if any(bot in user_agent for bot in bots):
-        return "Acesso negado", 403
+# Armazena dados das visitas (em memória; considere um BD para produção)
+visitas = []
+bloqueio = threading.Lock()
 
+# Detecção de bots: bloqueia User-Agents comuns de bots
+def eh_bot(user_agent_string):
+    if not user_agent_string:
+        return True
+    user_agent = parse(user_agent_string)
+    return user_agent.is_bot or 'bot' in user_agent_string.lower()
 
-# Variáveis globais
-access_count = 0
-visit_log = defaultdict(int)
-lock = threading.Lock()
-
-# Middleware para rastrear rotas definidas
-@app.before_request
-def auto_register_visits():
-    paths_to_track = ['/', '/link-do-portfólio']
-    if request.path in paths_to_track:
-        register_visit()
-
-def send_daily_email(count, log):
-    try:
-        now = datetime.now()
-
-        if log:
-            time_list_html = "<ul>" + "".join(
-                f"<li>{hour} → {visits} visita(s)</li>" for hour, visits in sorted(log.items())
-            ) + "</ul>"
-        else:
-            time_list_html = "<p>Nenhuma visita registrada hoje.</p>"
-
-        html_content = f"""
+# Envia relatório diário por e-mail
+def enviar_relatorio_diario():
+    with bloqueio:
+        if not visitas:
+            print("Nenhuma visita para relatar hoje.")
+            return
+        
+        agora = datetime.now()
+        total_visitas = len(visitas)
+        detalhes_visitas = ""
+        for visita in visitas:
+            detalhes_visitas += f"<p>Visita em: {visita['tempo'].strftime('%d/%m/%Y %H:%M:%S')}|</p>"
+        
+        conteudo_html = f"""
         <html>
         <body>
-        <p>Hoje seu portfólio recebeu <strong>{count}</strong> visita(s)! 🤩🙏</p>
-        <p>Relatório diário de acessos - {now.strftime('%d/%m/%Y')}</p>
-        <p><strong>Horários das visitas:</strong></p>
-        {time_list_html}
-        <img src="gif">
-        <p>Vamos torcer por uma entrevista!</p>
+        <h2>Relatório Diário de Visitas</h2>
+        <p>Total de Visitas: {total_visitas}</p>
+        <p>Data do Relatório: {agora.strftime('%d/%m/%Y')}</p>
+        <h3>Detalhes das Visitas:</h3>
+        {detalhes_visitas}
+         <img src="gif" alt="Torcida GIF" style="width:200px;">
         </body>
         </html>
-        """ #Texto da sua preferência
-
-        msg = MIMEText(html_content, 'html')
+        """
+        msg = MIMEText(conteudo_html, 'html')
         msg['Subject'] = 'Relatório Diário de Visitas'
         msg['From'] = EMAIL_ADDRESS
         msg['To'] = EMAIL_ADDRESS
 
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()
-            server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
-            server.send_message(msg)
+        try:
+            with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as servidor:
+                servidor.starttls()
+                servidor.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+                servidor.send_message(msg)
+            print(f"Relatório diário enviado em {agora.strftime('%d/%m/%Y %H:%M:%S')}")
+            visitas.clear()  # Limpa a lista de visitas após o envio
+        except Exception as e:
+            print(f"Erro ao enviar relatório diário: {e}")
 
-        print(f"[✔️] Relatório enviado com {count} acesso(s) em {now.strftime('%H:%M:%S')}")
-        print("visit_log:", dict(log))
-
-    except Exception as e:
-        print(f"[❌] Erro ao enviar relatório: {e}")
-
-def schedule_daily_report():
+# Agenda o relatório diário 
+def agendar_relatorio_diario():
+    schedule.every().day.at("17:00").do(enviar_relatorio_diario)
     while True:
-        now = datetime.now()
-        target = datetime.combine(now.date(), time(20,0)) # Defina a hora desejada
+        schedule.run_pending()
+        time.sleep(60)  # Verifica a cada minuto
 
-        if now >= target:
-            target += timedelta(days=1)
-
-        wait_seconds = (target - now).total_seconds()
-        print(f"⏳ Próximo envio às 20h. Aguardando {int(wait_seconds)} segundos...")
-        time_module.sleep(wait_seconds)
-
-        with lock:
-            global access_count, visit_log
-            send_daily_email(access_count, visit_log)
-            access_count = 0
-            visit_log = defaultdict(int)
-
-# Inicia a thread de agendamento
-report_thread = threading.Thread(target=schedule_daily_report, daemon=True)
-report_thread.start()
+# Inicia o agendador em uma thread em segundo plano
+threading.Thread(target=agendar_relatorio_diario, daemon=True).start()
 
 @app.route('/')
 def home():
-    return "Bem-vindo a NotificaSite!"
-
-@app.route('/link-do-portfólio')
-def track_visit():
-    return '', 204
-
-def register_visit():
-    global access_count, visit_log
-    with lock:
-        access_count += 1
-        hour_str = datetime.now().strftime('%H:%M')
-        visit_log[hour_str] += 1
-        print(f"[📌] Visita registrada às {hour_str} — Total até agora: {access_count}")
+    user_agent = request.headers.get('User-Agent')
+    if eh_bot(user_agent):
+        return "Acesso negado: Bots não são permitidos.", 403
+    
+    with bloqueio:
+        visitas.append({
+            'tempo': datetime.now(),
+            'ip': request.remote_addr,
+            'user_agent': user_agent
+        })
+    return "Bem-vindo ao NotificaSite!"
 
 if __name__ == '__main__':
     app.run(debug=True)
-
