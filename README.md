@@ -30,7 +30,6 @@ Agora, ao invés de enviar um e-mail a cada acesso, a API gera um **relatório d
 - Gmail SMTP  
 - schedule (para agendamento do relatório diário)  
 - user-agents (para detecção de bots)  
-- geocoder (para identificação de regiões)  
 
 ##  Observações
 
