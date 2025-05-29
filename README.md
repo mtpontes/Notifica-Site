@@ -44,9 +44,9 @@ SMTP_PORT=587
 
 ##  ATUALIZAÇÕES
 
-###  Relatório Diário Programado às 18h
+###  Relatório Diário Programado
 
-Graças à sugestão do [**Atevilson Araujo**](https://www.linkedin.com/in/atevilson-araujo/), agora o envio de e-mails acontece **somente uma vez ao dia, às 18h**, agrupando todos os acessos. Isso evita sobrecarga no e-mail e dá uma visão geral do tráfego do portfólio de forma organizada.
+Graças à sugestão do [**Atevilson Araujo**](https://www.linkedin.com/in/atevilson-araujo/), agora o envio de e-mails acontece **somente uma vez ao dia, agrupando todos os acessos. Isso evita sobrecarga no e-mail e dá uma visão geral do tráfego do portfólio de forma organizada.
 
 ###  Proteção contra Bots
 
