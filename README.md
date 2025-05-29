@@ -1,6 +1,3 @@
-Claro, minha parceira! Aqui está o `README.md` completo em **formato de código** pra você só copiar e colar onde quiser:
-
-````markdown
 # API de Notificação de Visitas por E-mail
 
 Este projeto é uma API simples desenvolvida com Flask (Python) que detecta acessos e envia notificações por e-mail sobre as visitas.
