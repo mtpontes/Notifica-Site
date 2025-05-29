@@ -13,13 +13,14 @@ Agora, ao invés de enviar um e-mail a cada acesso, a API gera um **relatório d
 
 - Detecta acessos via rotas HTTP (`/` e `/track-visit`)
 - Envia e-mails de forma segura via SMTP (Gmail)
-- Gera **relatórios diários automáticos às 18h**
-- Mostra os horários exatos das visitas e a quantidade por horário
+- Gera **relatórios diários automáticos às 20h42**
+- Mostra os horários exatos das visitas, regiões e User-Agents
 - Suporte a Senhas de Aplicativo do Google
 - Variáveis de ambiente gerenciadas com `python-dotenv`
 - Pode ser integrada facilmente com front-ends usando `fetch`
+- Proteção contra bots via verificação de User-Agent
 
-##  Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 - Python 3  
 - Flask  
@@ -27,6 +28,9 @@ Agora, ao invés de enviar um e-mail a cada acesso, a API gera um **relatório d
 - python-dotenv  
 - smtplib (para envio de e-mail)  
 - Gmail SMTP  
+- schedule (para agendamento do relatório diário)  
+- user-agents (para detecção de bots)  
+- geocoder (para identificação de regiões)  
 
 ##  Observações
 
