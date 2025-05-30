@@ -57,4 +57,64 @@ Essa funcionalidade foi desenvolvida após o [**Angelo Mendes**](https://www.lin
 
 
 Agradeço a cada um pelo estimulo e contribuição, sintam-se sempre a vontade para participar!
+------------------------------------------------
+
+# Email Notification API
+
+This project is a simple API developed with Flask (Python) that detects accesses and sends email notifications about the visits.
+
+## What does it do?
+
+Now, instead of sending an email for each access, the API generates a daily report, containing:
+
+- Total number of accesses for the day
+- List with the **visit times** and how many times they occurred
+
+## Features
+
+- Detects accesses via HTTP routes (`/` and `/track-visit`)
+- Sends emails securely via SMTP (Gmail)
+- Generates **automatic daily reports at 8:42 p.m.**
+- Shows the exact times of visits, regions and User-Agents
+- Support for Google App Passwords
+- Environment variables managed with `python-dotenv`
+- Can be easily integrated with front-ends using `fetch`
+- Protection against bots via User-Agent verification
+
+## Technologies Used
+
+- Python 3
+- Flask
+- Flask-CORS
+- python-dotenv
+- smtplib (for sending emails) e-mail)
+- Gmail SMTP
+- schedule (to schedule the daily report)
+- user-agents (to detect bots)
+
+## Notes
+
+- The server must be running for the API to respond to requests.
+- The following environment variables must be correctly configured:
+
+```env
+EMAIL_ADDRESS=youremail@gmail.com
+EMAIL_PASSWORD=your_application_password
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+````
+
+---
+
+## UPDATES
+
+### Scheduled Daily Report
+
+Thanks to the suggestion by [**Atevilson Araujo**](https://www.linkedin.com/in/atevilson-araujo/), now emails are sent **only once a day, grouping all accesses. This prevents email overload and provides an organized overview of portfolio traffic.
+
+### Bot Protection
+
+This feature was developed after [**Angelo Mendes**](https://www.linkedin.com/in/mangelodev/) asked me about the possibility of blocking automated access. Thanks to his insight, a simple User-Agent check was implemented to prevent unwanted bots/crawlers. The result? Enhanced security and more accurate visits!
+
+I thank everyone for their encouragement and contribution, always feel free to participate!
 ---
