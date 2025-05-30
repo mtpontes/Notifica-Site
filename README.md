@@ -4,7 +4,7 @@ Este projeto é uma API simples desenvolvida com Flask (Python) que detecta aces
 
 ## O que ela faz?
 
-Agora, ao invés de enviar um e-mail a cada acesso, a API gera um **relatório diário às 18h**, contendo:
+Agora, ao invés de enviar um e-mail a cada acesso, a API gera um **relatório diário, contendo:
 
 -  Quantidade total de acessos do dia  
 -  Lista com os **horários das visitas** e quantas vezes ocorreram  
