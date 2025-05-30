@@ -50,6 +50,8 @@ def enviar_relatorio_diario():
         <h2>Relatório Diário de Visitas</h2>
         <p>Total de Visitas: {total_visitas}</p>
         <p>Data do Relatório: {agora.strftime('%d/%m/%Y')}</p>
+        <p>Vamos torcer por uma entrevista!!</p>
+
         <h3>Detalhes das Visitas:</h3>
         {detalhes_visitas}
          <img src="gif" alt="Torcida GIF" style="width:200px;">
