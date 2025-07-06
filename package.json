@@ -1,0 +1,21 @@
+{
+  "name": "notifica-acesso-ao-portifolio",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Mateus Pontes",
+  "scripts": {
+    "build": "node ./scripts/build-artifacts.js",
+    "build:registrar": "node ./scripts/build-artifacts.js registrar",
+    "build:relatorio": "node ./scripts/build-artifacts.js relatorio",
+    "clean": "rm -rf temp_build_* artifacts/*.zip",
+    "deploy:dev": "npm run build && sls deploy",
+    "deploy:prod": "npm run build && sls deploy --stage prod"
+  },
+  "devDependencies": {
+    "serverless-offline": "^14.4.0"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "fs-extra": "^11.3.0"
+  }
+}

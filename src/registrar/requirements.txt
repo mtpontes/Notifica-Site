@@ -1,0 +1,7 @@
+Flask
+flask-cors
+gunicorn==21.2.0
+serverless-wsgi
+
+user-agents
+

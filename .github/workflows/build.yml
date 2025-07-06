@@ -1,0 +1,94 @@
+name: Build zip artifacts for serverless functions
+on:
+  workflow_call:
+
+jobs:
+  build-registrar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Build serverless_function_registrar.zip
+        run: |
+          set -e
+
+          echo "🔧 Criando diretório 'package'..."
+          mkdir -p package/src
+
+          echo "⬆️ Atualizando pip..."
+          pip install --upgrade pip
+
+          echo "📦 Instalando dependências do registrar..."
+          pip install -r ./src/registrar/requirements.txt -t ./package
+
+          echo "📁 Copiando código do 'registrar' para 'package/src'..."
+          cp -r ./src/registrar ./package/src/
+
+          echo "📁 Copiando código comum para 'package/src'..."
+          cp -r ./src/common ./package/src/
+
+          echo "📦 Empacotando tudo em 'serverless_function_registrar.zip'..."
+          cd package
+          zip -r ../serverless_function_registrar.zip .
+          cd ..
+
+          echo "✅ Empacotamento finalizado com sucesso!"
+
+      - name: Upload artifact for serverless_function_registrar
+        uses: actions/upload-artifact@v4
+        with:
+          name: serverless_function_registrar-deployment-package
+          path: serverless_function_registrar.zip
+          retention-days: 1
+
+  build-relatorio:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Build serverless_function_relatorio.zip
+        run: |
+          set -e
+
+          echo "🔧 Criando diretório 'package'..."
+          mkdir -p package/src
+
+          echo "⬆️ Atualizando pip..."
+          pip install --upgrade pip
+
+          echo "📦 Instalando dependências do relatorio..."
+          pip install -r ./src/relatorio/requirements.txt -t ./package
+
+          echo "📁 Copiando código do 'relatorio' para 'package/src'..."
+          cp -r ./src/relatorio ./package/src/
+
+          echo "📁 Copiando código comum para 'package/src'..."
+          cp -r ./src/common ./package/src/
+
+          echo "📦 Empacotando tudo em 'serverless_function_relatorio.zip'..."
+          cd package
+          zip -r ../serverless_function_relatorio.zip .
+          cd ..
+
+          echo "✅ Empacotamento finalizado com sucesso!"
+
+      - name: Upload artifact for serverless_function_relatorio
+        uses: actions/upload-artifact@v4
+        with:
+          name: serverless_function_relatorio-deployment-package
+          path: serverless_function_relatorio.zip
+          retention-days: 1

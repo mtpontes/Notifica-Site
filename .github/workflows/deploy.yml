@@ -1,0 +1,74 @@
+name: Deployment
+on:
+  workflow_call:
+
+jobs:
+  application-deployment:
+    runs-on: ubuntu-latest
+    env:
+      SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+      FUNCTION_REGISTRAR: "serverless_function_registrar.zip"
+      FUNCTION_RELATORIO: "serverless_function_relatorio.zip"
+      REGION: ${{ vars.REGION }}
+      EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+      SMTP_SERVER: ${{ secrets.EMAIL_HOST }}
+      SMTP_PORT: 587
+      GIF_PATH: ${{ vars.GIF_PATH }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifact - function_registrar
+        uses: actions/download-artifact@v4
+        with:
+          name: serverless_function_registrar-deployment-package
+          path: ./artifacts
+
+      - name: Download artifact - function_relatorio
+        uses: actions/download-artifact@v4
+        with:
+          name: serverless_function_relatorio-deployment-package
+          path: ./artifacts
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup Node.js 22.x with npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: |
+          npm ci
+
+
+      - name: List project and artifact files
+        run: |
+          echo ""
+          echo "📁 Root directory contents:"
+          echo "---------------------------"
+          ls -lah
+          echo ""
+
+          echo "📦 Artifacts directory (recursive):"
+          echo "-----------------------------------"
+          if [ -d "./artifacts" ]; then
+            find ./artifacts -type f | while read file; do
+              echo " - $file"
+            done
+          else
+            echo "❌ Directory './artifacts' not found."
+          fi
+          echo ""
+
+      - name: Deploy with Serverless Framework
+        run: |
+          npx serverless@4 deploy --stage prod --debug

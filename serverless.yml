@@ -1,0 +1,103 @@
+service: notifica-acesso-ao-portifolio
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  region: us-east-1
+  runtime: python3.12
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:DescribeTable
+          Resource:
+            - Fn::GetAtt: [Visitas, Arn]
+  environment:
+    REGION: ${self:provider.region}
+    VISITAS_TABLE: ${param:tableName}
+    IS_OFFLINE: ${env:IS_OFFLINE, "false"}
+
+plugins:
+  - serverless-offline
+
+custom:
+  tabelaBanco: "visitas-no-meu-portifolio-${sls:stage}"
+
+stages:
+  default:
+    params:
+      tableName: "${self:custom.tabelaBanco}"
+      EMAIL_ADDRESS: ${env:EMAIL_ADDRESS, ""}
+      EMAIL_PASSWORD: ${env:EMAIL_PASSWORD, ""}
+      SMTP_SERVER: ${env:SMTP_SERVER, ""}
+      SMTP_PORT: ${env:SMTP_PORT, ""}
+
+package:
+  individually: true
+
+functions:
+  registrar-visitas:
+    name: registrar-visitas-${sls:stage}
+    tags:
+      tipo: registro
+      projeto: notifica-acesso-ao-portifolio
+      endpoint: visitas
+    handler: src/registrar/handler.handler
+    package:
+      artifact: ./artifacts/serverless_function_registrar.zip
+    events:
+      - httpApi:
+          path: /api/visitas
+          method: POST
+
+  enviar-relatorio-diario-de-visitas:
+    name: enviar-relatorio-diario-de-visitas-${sls:stage}
+    tags:
+      tipo: relatorio
+      projeto: notifica-acesso-ao-portifolio
+      frequencia: diaria
+    environment:
+      GIF_PATH: ${env:GIF_PATH, ""}
+      EMAIL_ADDRESS: ${param:EMAIL_ADDRESS}
+      EMAIL_PASSWORD: ${param:EMAIL_PASSWORD}
+      SMTP_SERVER: ${param:SMTP_SERVER}
+      SMTP_PORT: ${param:SMTP_PORT}
+    handler: src/relatorio/handler.handler
+    package:
+      artifact: ./artifacts/serverless_function_relatorio.zip
+    events:
+      - eventBridge:
+          schedule: cron(0 0 * * ? *)
+
+resources:
+  Resources:
+    Visitas:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: visita_id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: visita_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${param:tableName}
+        TimeToLiveSpecification:
+          AttributeName: 'ttl'
+          Enabled: true
+        Tags:
+          - Key: notifica
+            Value: notifica-acessos-ao-portifolio
+          - Key: acessos
+            Value: notifica-acessos-ao-portifolio
+          - Key: portifolio
+            Value: notifica-acessos-ao-portifolio
