@@ -31,7 +31,7 @@ custom:
   tabelaBanco: "visitas-no-meu-portifolio-${sls:stage}"
 
 stages:
-  dev:
+  offline:
     params:
       IS_OFFLINE: "true"
   default:

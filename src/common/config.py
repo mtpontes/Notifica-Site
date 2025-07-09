@@ -40,8 +40,19 @@ for key, value in Envs.as_dict().items():
         raise EnvironmentError(f"Variável de ambiente obrigatória não definida: {key}")
 
 def criar_cliente_de_tabela_dynamodb():
-    """Factory function para criar resource.Table DynamoDB baseado no ambiente"""
+    """
+    Cria e retorna um cliente da tabela DynamoDB com base no ambiente de execução.
+
+    Em ambiente offline (local), conecta-se a uma instância local do DynamoDB (em `http://localhost:8000`)
+    usando credenciais falsas, e cria a tabela `Envs.VISITAS_TABLE` se ela ainda não existir.
+
+    Em ambiente online (AWS), conecta-se diretamente ao DynamoDB da AWS usando a região especificada.
+
+    Returns:
+        boto3.resources.factory.dynamodb.Table: Instância da tabela DynamoDB configurada conforme o ambiente.
+    """
     resource: ServiceResource = None
+    
     if Envs.IS_OFFLINE:
         resource = boto3.resource(
             "dynamodb",
@@ -50,6 +61,21 @@ def criar_cliente_de_tabela_dynamodb():
             aws_access_key_id="fake",
             aws_secret_access_key="fake"
         )
-    else: 
+        
+        # Verifica se a tabela existe antes de criar
+        existing_tables = resource.meta.client.list_tables()['TableNames']
+        if Envs.VISITAS_TABLE not in existing_tables:
+            resource.create_table(
+                TableName=Envs.VISITAS_TABLE,
+                KeySchema=[{'AttributeName': 'visita_id', 'KeyType': 'HASH'}],
+                AttributeDefinitions=[{'AttributeName': 'visita_id', 'AttributeType': 'S'}],
+                ProvisionedThroughput={'ReadCapacityUnits': 1, 'WriteCapacityUnits': 1}
+            )
+            # Espera a tabela ficar ativa antes de continuar
+            resource.meta.client.get_waiter('table_exists').wait(TableName=Envs.VISITAS_TABLE)
+
+        return resource.Table(Envs.VISITAS_TABLE)
+
+    else:
         resource = boto3.resource("dynamodb", region_name=Envs.REGION)
-    return resource.Table(Envs.VISITAS_TABLE)
+        return resource.Table(Envs.VISITAS_TABLE)

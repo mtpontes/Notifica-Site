@@ -7,9 +7,12 @@
     "build": "node ./scripts/build-artifacts.js",
     "build:registrar": "node ./scripts/build-artifacts.js registrar",
     "build:relatorio": "node ./scripts/build-artifacts.js relatorio",
-    "clean": "rm -rf temp_build_* artifacts/*.zip",
     "deploy:dev": "npm run build && sls deploy",
-    "deploy:prod": "npm run build && sls deploy --stage prod"
+    "deploy:prod": "npm run build && sls deploy --stage prod",
+    "clean": "node scripts/clean.js",
+    "docker:down": "docker stop dynamodb-local",
+    "offline:start": "npm run build && docker run --rm -d -p 8000:8000 --name dynamodb-local amazon/dynamodb-local && sls offline --stage offline",
+    "offline:stop": "npm run clean && npm run docker:down"
   },
   "devDependencies": {
     "serverless-offline": "^14.4.0"
