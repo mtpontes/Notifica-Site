@@ -2,6 +2,9 @@
 
 Este projeto é uma API simples desenvolvida com Flask (Python) que detecta acessos e envia notificações por e-mail sobre as visitas.
 
+## Diagrama de arquitetura
+![application-schema](/assets/diagrama-de-arquitetura.svg)
+
 ## O que ela faz?
 
 A API gera um relatório diário de acessos ao seu portifólio, contendo:
