@@ -22,7 +22,7 @@ provider:
   environment:
     REGION: ${self:provider.region}
     VISITAS_TABLE: ${param:tableName}
-    IS_OFFLINE: ${env:IS_OFFLINE, "false"}
+    IS_OFFLINE: ${param:IS_OFFLINE}
 
 plugins:
   - serverless-offline
@@ -31,9 +31,13 @@ custom:
   tabelaBanco: "visitas-no-meu-portifolio-${sls:stage}"
 
 stages:
+  dev:
+    params:
+      IS_OFFLINE: "true"
   default:
     params:
       tableName: "${self:custom.tabelaBanco}"
+      IS_OFFLINE: "false"
       EMAIL_ADDRESS: ${env:EMAIL_ADDRESS, ""}
       EMAIL_PASSWORD: ${env:EMAIL_PASSWORD, ""}
       SMTP_SERVER: ${env:SMTP_SERVER, ""}

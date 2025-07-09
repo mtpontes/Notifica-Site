@@ -1,8 +1,10 @@
+tzdata
+
+Flask
 flask-cors
 gunicorn==21.2.0
 
 user-agents
 
-Flask
 serverless-wsgi
 boto3

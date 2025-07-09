@@ -2,7 +2,6 @@ import os
 
 import boto3
 from boto3.resources.base import ServiceResource
-from boto3.resources.factory import dynamodb
 
 
 class Envs:
@@ -40,7 +39,7 @@ for key, value in Envs.as_dict().items():
     if value is None:
         raise EnvironmentError(f"Variável de ambiente obrigatória não definida: {key}")
 
-def criar_cliente_de_tabela_dynamodb() -> dynamodb.Table:
+def criar_cliente_de_tabela_dynamodb():
     """Factory function para criar resource.Table DynamoDB baseado no ambiente"""
     resource: ServiceResource = None
     if Envs.IS_OFFLINE:
@@ -51,6 +50,6 @@ def criar_cliente_de_tabela_dynamodb() -> dynamodb.Table:
             aws_access_key_id="fake",
             aws_secret_access_key="fake"
         )
-
-    resource = boto3.resource("dynamodb", region_name=Envs.REGION)
+    else: 
+        resource = boto3.resource("dynamodb", region_name=Envs.REGION)
     return resource.Table(Envs.VISITAS_TABLE)

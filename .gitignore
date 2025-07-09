@@ -3,3 +3,5 @@ venv
 .serverless
 .dynamodb
 **.pyc
+.serverless-offline
+artifacts/**
