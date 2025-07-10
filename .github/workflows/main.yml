@@ -1,11 +1,10 @@
 name: Build and Deploy serverless functions
 
-
 on:
   push:
-    branches: [ "master", "slsv4" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -13,6 +12,7 @@ jobs:
     secrets: inherit
 
   deploy:
+    if: ${{ vars.ENABLE_DEPLOY == 'true' }}
     needs: build
     uses: ./.github/workflows/deploy.yml
     secrets: inherit

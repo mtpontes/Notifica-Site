@@ -3,7 +3,7 @@ frameworkVersion: '4'
 
 provider:
   name: aws
-  region: us-east-1
+  region: ${env:REGION, "us-east-1"}
   runtime: python3.12
   iam:
     role:
@@ -26,6 +26,7 @@ provider:
 
 plugins:
   - serverless-offline
+  - serverless-offline-scheduler
 
 custom:
   tabelaBanco: "visitas-no-meu-portifolio-${sls:stage}"

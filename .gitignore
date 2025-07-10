@@ -5,3 +5,4 @@ venv
 **.pyc
 .serverless-offline
 artifacts/**
+**.drawio

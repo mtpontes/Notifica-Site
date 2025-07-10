@@ -9,6 +9,6 @@ dirs.forEach((dir) => {
     fs.rmSync(fullPath, { recursive: true, force: true });
     console.log(`✅ Removido: ${dir}`);
   } else {
-    console.log(`ℹ️ Diretório não encontrado: ${dir}`);
+    console.log(`ℹ️  Diretório não encontrado: ${dir}`);
   }
 });

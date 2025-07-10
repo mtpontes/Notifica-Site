@@ -3,7 +3,10 @@
 Este projeto é uma API simples desenvolvida com Flask (Python) que detecta acessos e envia notificações por e-mail sobre as visitas.
 
 ## Diagrama de arquitetura
-![application-schema](/assets/diagrama-de-arquitetura.svg)
+<p align="center">
+  <img src="./assets/diagrama-de-arquitetura.svg" alt="application-schema"/>
+</p>
+
 
 ## O que ela faz?
 
@@ -112,10 +115,9 @@ aws configure
 - CloudWatchLogsFullAccess
 - IAMFullAccess
 
-### Gere os artefatos da aplicação
-
-### Deploy
-O Serverless Framework está configurado para buscar os artefatos no nível corrente no diretório `./artifacts`. Para facilitar o deploy da aplicação por via local, foi criado um script em Node.JS para automatizar a construção dos artefatos de forma otimizada. Execute o script de construção dos artefatos com o seguinte comando:
+<details>
+  <summary><h3>Deploy local</h3></summary>
+O Serverless Framework está configurado para buscar os artefatos no nível corrente no diretório `./artifacts`. Para facilitar o deploy da aplicação por via local, foi criado um script em Node.JS para automatizar a construção dos artefatos de forma otimizada.
 
 #### Faça o deploy
 ```bash
@@ -126,6 +128,39 @@ npm run deploy:prod
 ```bash
 sls remove --stage prod
 ```
+</details>
+
+<details>
+  <summary><h3>Deploy via pipeline</h3></summary>
+Por padrão o job de deploy está desativado, para ativa-lo basta fornecer uma variável de repositório 'ENABLE_DEPLOY' com valor 'true'.
+
+#### Pré-requisitos
+- Credenciais AWS
+- Credenciais Serverless Framework
+- Reativar workflows em ./github/workflows/main.yml
+
+<details>
+  <summary><h5>Gerando Serverless Framework access key</h5></summary>
+  <img src="./assets/gerando-sls-access-key.png" alt="application-schema"/>
+</details>
+
+#### Repository variables
+```env
+ENABLE_DEPLOY=true ou false
+REGION=região_aws
+GIF_PATH=link_do_gif_que_vai_no_corpo_do_email
+```
+
+#### Repository secrets
+```env
+AWS_ACCESS_KEY_ID=access_key_aws
+AWS_SECRET_ACCESS_KEY=secret_access_key_aws
+SERVERLESS_ACCESS_KEY=chave_de_acesso_serverless_framework
+SMTP_SERVER=host_do_servidor_de_email
+EMAIL_ADDRESS=seu_email
+EMAIL_PASSWORD=senha_de_acesso_ao_email
+```
+</details>
 
 </details>
 
