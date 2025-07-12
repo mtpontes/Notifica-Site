@@ -7,7 +7,6 @@ Este projeto é uma API simples desenvolvida com Flask (Python) que detecta aces
   <img src="./assets/diagrama-de-arquitetura.svg" alt="application-schema"/>
 </p>
 
-
 ## O que ela faz?
 
 A API gera um relatório diário de acessos ao seu portifólio, contendo:
